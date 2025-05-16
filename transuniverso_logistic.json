@@ -1,0 +1,3730 @@
+{
+  "name": "transuniverso_logistic",
+  "nodes": [
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "d78125df-3b54-4fcb-ab9d-b937a5e9a852",
+              "name": "info.message",
+              "value": "={{ $json.body.data.message.conversation }}",
+              "type": "string"
+            },
+            {
+              "id": "086aa018-19fc-4ec6-87ea-b7ac6abbd740",
+              "name": "info.tell_id",
+              "value": "={{ $json.body.data.key.remoteJid }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        140,
+        -180
+      ],
+      "id": "facdefe1-3047-48ab-b77e-298a1dc52a46",
+      "name": "Get Info"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.0-flash-lite-preview-02-05",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        888,
+        40
+      ],
+      "id": "26f7e771-75d0-45f5-9371-f9a3327832d3",
+      "name": "Google Gemini Chat Model3",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "wpbD8OXmduMLUc7c",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $('Get Info').item.json.info.message }}",
+        "options": {
+          "systemMessage": "=Aja como um extrator de dados. Eu vou te enviar textos curtos contendo informações de nome, frete motorista e coleta. Quero que você me devolva somente o JSON no seguinte formato:\n\n{\n  \"nome_motorista\": \"\",\n  \"data\": \"\",\n  \"coleta\": \"\",\n  \"frete_motorista\": \"\",\n  \"diaria\": \"70\",\n  \"lona\": \"\",\n  \"descarga\": \"\"\n}\n\nSe algum dado estiver faltando, deixe o campo como string vazia (\"\") com excessão da diária que sempre será 70. Caso a palavra \"lona\" ou \"descarga\" estja presente no user message, adote ambos como 100 se não tiver um valor específico. Não adicione nenhuma explicação, apenas devolva o JSON.\n\n\n27/04\nSão paulo x São paulo\nFrete 3000\nMotorista matheus\nFrete Motorista: 2000\n\nNote que tem dois valores, o unico que você vai coletar é o frete motorista, que é sempre menor do que o frete cheio. No valor do frete nao adicione \".\" e nem \",\"\nExemplo de saída:\n{\n  \"nome\": \"Matheus\",\n  \"data\": \"27/04\",\n  \"coleta\": \"São Paulo x São Paulo\",\n  \"frete_motorista\": \"1700\"\n  \"diaria\": \"70\",\n}\n\nLembre de colocar nomes de pessoas e cidades em maiuculo na saída."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.8,
+      "position": [
+        800,
+        -180
+      ],
+      "id": "bbba4fc9-41f1-467f-8269-bf7ae9c6c6b7",
+      "name": "Website Ready"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "d622d788-6b4a-4eee-929f-2d657fcf945d",
+              "leftValue": "={{ $json.info.tell_id }}",
+              "rightValue": "120363038744943994@g.us",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        360,
+        -180
+      ],
+      "id": "2436c104-0f46-4ea7-b3a8-8a77683c7828",
+      "name": "If From Group"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $('Get Json').item.json.nome_motorista }}",
+                    "rightValue": "Bruno",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "728421fb-e9b2-4522-b4f8-fccaef7ce1f4"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Bruno"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "286251e6-d9b4-46fc-b0a5-a50efee783c6",
+                    "leftValue": "={{ $('Get Json').item.json.nome_motorista }}",
+                    "rightValue": "Rubens",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Rubens"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "223d7bc0-e132-41e7-9cf5-f8c294181e74",
+                    "leftValue": "={{ $('Get Json').item.json.nome_motorista }}",
+                    "rightValue": "Ronaldo",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Ronaldo"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        1616,
+        -180
+      ],
+      "id": "548d9074-7ff5-4b8f-ac5d-00a6843466ad",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "jsCode": "return items.map(item => {\n  let clean = item.json.output\n    .replace('```json', '')\n    .replace('```', '')\n    .trim();\n\n  return {\n    json: JSON.parse(clean)\n  };\n});\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1180,
+        -180
+      ],
+      "id": "b359950d-4b60-49d9-aac7-5661dfb45a4f",
+      "name": "Get Json"
+    },
+    {
+      "parameters": {
+        "jsCode": "const input = $input.first().json.data; // exemplo: \"14/05\"\n\nconst [diaStr, mesStr] = input.split('/');\nconst dia = parseInt(diaStr, 10);\nconst mes = parseInt(mesStr, 10) - 1; // JavaScript usa mês de 0 a 11\n\nconst ano = new Date().getFullYear(); // ou defina manualmente se necessário\n\nconst data = new Date(ano, mes, dia);\n\n// Encontrar o primeiro domingo anterior ou igual ao primeiro dia do mês\nconst primeiroDiaDoMes = new Date(ano, mes, 1);\nconst diaDaSemana = primeiroDiaDoMes.getDay(); // 0 = domingo, 1 = segunda...\n\nconst primeiroDomingo = new Date(primeiroDiaDoMes);\nprimeiroDomingo.setDate(primeiroDiaDoMes.getDate() - diaDaSemana);\n\n// Calcular a diferença de semanas\nconst diffEmDias = Math.floor((data - primeiroDomingo) / (1000 * 60 * 60 * 24));\nconst semanaDoMes = Math.floor(diffEmDias / 7) + 1;\n\nreturn {\n  semana: semanaDoMes\n};\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1396,
+        -180
+      ],
+      "id": "6629d715-a550-477c-9dec-99fd7535a8bb",
+      "name": "Get Week"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "2128bc89-a81d-4624-bbbb-4ba0d42378c9",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -80,
+        -180
+      ],
+      "id": "00e3ec93-2ef2-42f9-9af6-0f02c4c328fe",
+      "name": "Webhook",
+      "webhookId": "2128bc89-a81d-4624-bbbb-4ba0d42378c9"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.semana }}",
+                    "rightValue": 1,
+                    "operator": {
+                      "type": "number",
+                      "operation": "equals"
+                    },
+                    "id": "403b3a9a-ba97-43a2-94a2-f0e25a921981"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Semana 1"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "7eeacd89-caf3-4ecd-9182-80704b0b6e9b",
+                    "leftValue": "={{ $json.semana }}",
+                    "rightValue": 2,
+                    "operator": {
+                      "type": "number",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Semana 2"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "121ca381-53bd-4e3f-a01b-673ddbc174cf",
+                    "leftValue": "={{ $json.semana }}",
+                    "rightValue": 3,
+                    "operator": {
+                      "type": "number",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Semana 3"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "f2afa8a6-4e5a-4a59-aed6-15337e8be1a4",
+                    "leftValue": "={{ $json.semana }}",
+                    "rightValue": 4,
+                    "operator": {
+                      "type": "number",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Semana 4"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "3d7bb5ea-1870-4075-aabd-3aefed69c898",
+                    "leftValue": "={{ $json.semana }}",
+                    "rightValue": 5,
+                    "operator": {
+                      "type": "number",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Semana 5"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        1836,
+        -722
+      ],
+      "id": "5526a895-df99-418c-b0ff-40c681d6fd9e",
+      "name": "Switch1"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.semana }}",
+                    "rightValue": 1,
+                    "operator": {
+                      "type": "number",
+                      "operation": "equals"
+                    },
+                    "id": "403b3a9a-ba97-43a2-94a2-f0e25a921981"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Semana 1"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "7eeacd89-caf3-4ecd-9182-80704b0b6e9b",
+                    "leftValue": "={{ $json.semana }}",
+                    "rightValue": 2,
+                    "operator": {
+                      "type": "number",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Semana 2"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "121ca381-53bd-4e3f-a01b-673ddbc174cf",
+                    "leftValue": "={{ $json.semana }}",
+                    "rightValue": 3,
+                    "operator": {
+                      "type": "number",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Semana 3"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "f2afa8a6-4e5a-4a59-aed6-15337e8be1a4",
+                    "leftValue": "={{ $json.semana }}",
+                    "rightValue": 4,
+                    "operator": {
+                      "type": "number",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Semana 4"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "3d7bb5ea-1870-4075-aabd-3aefed69c898",
+                    "leftValue": "={{ $json.semana }}",
+                    "rightValue": 5,
+                    "operator": {
+                      "type": "number",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Semana 5"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        2280,
+        -220
+      ],
+      "id": "dd18b188-e772-43b5-b884-68d3fb202235",
+      "name": "Switch2"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.semana }}",
+                    "rightValue": 1,
+                    "operator": {
+                      "type": "number",
+                      "operation": "equals"
+                    },
+                    "id": "403b3a9a-ba97-43a2-94a2-f0e25a921981"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Semana 1"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "7eeacd89-caf3-4ecd-9182-80704b0b6e9b",
+                    "leftValue": "={{ $json.semana }}",
+                    "rightValue": 2,
+                    "operator": {
+                      "type": "number",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Semana 2"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "121ca381-53bd-4e3f-a01b-673ddbc174cf",
+                    "leftValue": "={{ $json.semana }}",
+                    "rightValue": 3,
+                    "operator": {
+                      "type": "number",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Semana 3"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "f2afa8a6-4e5a-4a59-aed6-15337e8be1a4",
+                    "leftValue": "={{ $json.semana }}",
+                    "rightValue": 4,
+                    "operator": {
+                      "type": "number",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Semana 4"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "3d7bb5ea-1870-4075-aabd-3aefed69c898",
+                    "leftValue": "={{ $json.semana }}",
+                    "rightValue": 5,
+                    "operator": {
+                      "type": "number",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Semana 5"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        1836,
+        278
+      ],
+      "id": "cc71de4d-7c1b-4b22-9e89-0a37839a95f2",
+      "name": "Switch3"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1-WaRV_5b2cnRWdA9-1ztr_OMrwpB62vGj28WqYgXSIU",
+          "mode": "list",
+          "cachedResultName": "Bruno - Fechamento Motorista Mês 05",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1-WaRV_5b2cnRWdA9-1ztr_OMrwpB62vGj28WqYgXSIU/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 22722953,
+          "mode": "list",
+          "cachedResultName": "Semana 1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1-WaRV_5b2cnRWdA9-1ztr_OMrwpB62vGj28WqYgXSIU/edit#gid=22722953"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Data": "={{ $('Get Json').item.json.data }}",
+            "Coleta": "={{ $('Get Json').item.json.coleta }}",
+            "Frete Motorista": "={{ $('Get Json').item.json.frete_motorista }}",
+            "Comissão": "={{ $('Get Json').item.json.frete_motorista * 0.15 }}",
+            "Diária": "={{ $('Get Json').item.json.diaria }}",
+            "Lona": "={{ $('Get Json').item.json.lona }}",
+            "Descraga": "={{ $('Get Json').item.json.descarga }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Data",
+              "displayName": "Data",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Coleta",
+              "displayName": "Coleta",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Frete Motorista",
+              "displayName": "Frete Motorista",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Comissão",
+              "displayName": "Comissão",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Diária",
+              "displayName": "Diária",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Lona",
+              "displayName": "Lona",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Descraga",
+              "displayName": "Descraga",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "nome_motorista",
+              "displayName": "nome_motorista",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "data",
+              "displayName": "data",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "coleta",
+              "displayName": "coleta",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "frete_motorista",
+              "displayName": "frete_motorista",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "diaria",
+              "displayName": "diaria",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "lona",
+              "displayName": "lona",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "descarga",
+              "displayName": "descarga",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        2056,
+        -1080
+      ],
+      "id": "4448ed3b-f4f7-495b-acae-8389c7fa0a63",
+      "name": "Google Sheets",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "z1TVyysIXlRlzX0a",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1-WaRV_5b2cnRWdA9-1ztr_OMrwpB62vGj28WqYgXSIU",
+          "mode": "list",
+          "cachedResultName": "Bruno - Fechamento Motorista Mês 05",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1-WaRV_5b2cnRWdA9-1ztr_OMrwpB62vGj28WqYgXSIU/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1186730605,
+          "mode": "list",
+          "cachedResultName": "Semana 2",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1-WaRV_5b2cnRWdA9-1ztr_OMrwpB62vGj28WqYgXSIU/edit#gid=1186730605"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Data": "={{ $('Get Json').item.json.data }}",
+            "Coleta": "={{ $('Get Json').item.json.coleta }}",
+            "Frete Motorista": "={{ $('Get Json').item.json.frete_motorista }}",
+            "Comissão": "={{ $('Get Json').item.json.frete_motorista * 0.15 }}",
+            "Diária": "={{ $('Get Json').item.json.diaria }}",
+            "Lona": "={{ $('Get Json').item.json.lona }}",
+            "Descraga": "={{ $('Get Json').item.json.descarga }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Data",
+              "displayName": "Data",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Coleta",
+              "displayName": "Coleta",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Frete Motorista",
+              "displayName": "Frete Motorista",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Comissão",
+              "displayName": "Comissão",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Diária",
+              "displayName": "Diária",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Lona",
+              "displayName": "Lona",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Descraga",
+              "displayName": "Descraga",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "nome_motorista",
+              "displayName": "nome_motorista",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "data",
+              "displayName": "data",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "coleta",
+              "displayName": "coleta",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "frete_motorista",
+              "displayName": "frete_motorista",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "diaria",
+              "displayName": "diaria",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "lona",
+              "displayName": "lona",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "descarga",
+              "displayName": "descarga",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        2056,
+        -880
+      ],
+      "id": "03c0b3ca-908b-4a39-809e-1ef32647c926",
+      "name": "Google Sheets1",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "z1TVyysIXlRlzX0a",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1-WaRV_5b2cnRWdA9-1ztr_OMrwpB62vGj28WqYgXSIU",
+          "mode": "list",
+          "cachedResultName": "Bruno - Fechamento Motorista Mês 05",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1-WaRV_5b2cnRWdA9-1ztr_OMrwpB62vGj28WqYgXSIU/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 366866710,
+          "mode": "list",
+          "cachedResultName": "Semana 3",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1-WaRV_5b2cnRWdA9-1ztr_OMrwpB62vGj28WqYgXSIU/edit#gid=366866710"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Data": "={{ $('Get Json').item.json.data }}",
+            "Coleta": "={{ $('Get Json').item.json.coleta }}",
+            "Frete Motorista": "={{ $('Get Json').item.json.frete_motorista }}",
+            "Comissão": "={{ $('Get Json').item.json.frete_motorista * 0.15 }}",
+            "Diária": "={{ $('Get Json').item.json.diaria }}",
+            "Lona": "={{ $('Get Json').item.json.lona }}",
+            "Descraga": "={{ $('Get Json').item.json.descarga }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Data",
+              "displayName": "Data",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Coleta",
+              "displayName": "Coleta",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Frete Motorista",
+              "displayName": "Frete Motorista",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Comissão",
+              "displayName": "Comissão",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Diária",
+              "displayName": "Diária",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Lona",
+              "displayName": "Lona",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Descraga",
+              "displayName": "Descraga",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "nome_motorista",
+              "displayName": "nome_motorista",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "data",
+              "displayName": "data",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "coleta",
+              "displayName": "coleta",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "frete_motorista",
+              "displayName": "frete_motorista",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "diaria",
+              "displayName": "diaria",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "lona",
+              "displayName": "lona",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "descarga",
+              "displayName": "descarga",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        2056,
+        -680
+      ],
+      "id": "79841520-fd27-4879-b694-8743ccba4e70",
+      "name": "Google Sheets2",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "z1TVyysIXlRlzX0a",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1-WaRV_5b2cnRWdA9-1ztr_OMrwpB62vGj28WqYgXSIU",
+          "mode": "list",
+          "cachedResultName": "Bruno - Fechamento Motorista Mês 05",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1-WaRV_5b2cnRWdA9-1ztr_OMrwpB62vGj28WqYgXSIU/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 183503083,
+          "mode": "list",
+          "cachedResultName": "Semana 4",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1-WaRV_5b2cnRWdA9-1ztr_OMrwpB62vGj28WqYgXSIU/edit#gid=183503083"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Data": "={{ $('Get Json').item.json.data }}",
+            "Coleta": "={{ $('Get Json').item.json.coleta }}",
+            "Frete Motorista": "={{ $('Get Json').item.json.frete_motorista }}",
+            "Comissão": "={{ $('Get Json').item.json.frete_motorista * 0.15 }}",
+            "Diária": "={{ $('Get Json').item.json.diaria }}",
+            "Lona": "={{ $('Get Json').item.json.lona }}",
+            "Descraga": "={{ $('Get Json').item.json.descarga }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Data",
+              "displayName": "Data",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Coleta",
+              "displayName": "Coleta",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Frete Motorista",
+              "displayName": "Frete Motorista",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Comissão",
+              "displayName": "Comissão",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Diária",
+              "displayName": "Diária",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Lona",
+              "displayName": "Lona",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Descraga",
+              "displayName": "Descraga",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "nome_motorista",
+              "displayName": "nome_motorista",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "data",
+              "displayName": "data",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "coleta",
+              "displayName": "coleta",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "frete_motorista",
+              "displayName": "frete_motorista",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "diaria",
+              "displayName": "diaria",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "lona",
+              "displayName": "lona",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "descarga",
+              "displayName": "descarga",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        2056,
+        -480
+      ],
+      "id": "eb8d9a38-7ae7-4027-948d-e72460818bce",
+      "name": "Google Sheets3",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "z1TVyysIXlRlzX0a",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1-WaRV_5b2cnRWdA9-1ztr_OMrwpB62vGj28WqYgXSIU",
+          "mode": "list",
+          "cachedResultName": "Bruno - Fechamento Motorista Mês 05",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1-WaRV_5b2cnRWdA9-1ztr_OMrwpB62vGj28WqYgXSIU/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 545407,
+          "mode": "list",
+          "cachedResultName": "Semana 5",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1-WaRV_5b2cnRWdA9-1ztr_OMrwpB62vGj28WqYgXSIU/edit#gid=545407"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Data": "={{ $('Get Json').item.json.data }}",
+            "Coleta": "={{ $('Get Json').item.json.coleta }}",
+            "Frete Motorista": "={{ $('Get Json').item.json.frete_motorista }}",
+            "Comissão": "={{ $('Get Json').item.json.frete_motorista * 0.15 }}",
+            "Diária": "={{ $('Get Json').item.json.diaria }}",
+            "Lona": "={{ $('Get Json').item.json.lona }}",
+            "Descraga": "={{ $('Get Json').item.json.descarga }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Data",
+              "displayName": "Data",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Coleta",
+              "displayName": "Coleta",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Frete Motorista",
+              "displayName": "Frete Motorista",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Comissão",
+              "displayName": "Comissão",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Diária",
+              "displayName": "Diária",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Lona",
+              "displayName": "Lona",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Descraga",
+              "displayName": "Descraga",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "nome_motorista",
+              "displayName": "nome_motorista",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "data",
+              "displayName": "data",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "coleta",
+              "displayName": "coleta",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "frete_motorista",
+              "displayName": "frete_motorista",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "diaria",
+              "displayName": "diaria",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "lona",
+              "displayName": "lona",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "descarga",
+              "displayName": "descarga",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        2056,
+        -280
+      ],
+      "id": "00b0e30a-82a8-4040-8b7a-8226f1a4a043",
+      "name": "Google Sheets4",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "z1TVyysIXlRlzX0a",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1KibhL1vMRG6cGUOA37-v0gg1reXq8rLEWd_7UjduRuo",
+          "mode": "list",
+          "cachedResultName": "Ronaldo - Fechamento Motorista Mês 05",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1KibhL1vMRG6cGUOA37-v0gg1reXq8rLEWd_7UjduRuo/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 22722953,
+          "mode": "list",
+          "cachedResultName": "Semana 1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1KibhL1vMRG6cGUOA37-v0gg1reXq8rLEWd_7UjduRuo/edit#gid=22722953"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Data": "={{ $('Get Json').item.json.data }}",
+            "Coleta": "={{ $('Get Json').item.json.coleta }}",
+            "Frete Motorista": "={{ $('Get Json').item.json.frete_motorista }}",
+            "Comissão": "={{ $('Get Json').item.json.frete_motorista * 0.15 }}",
+            "Diária": "={{ $('Get Json').item.json.diaria }}",
+            "Lona": "={{ $('Get Json').item.json.lona }}",
+            "Descraga": "={{ $('Get Json').item.json.descarga }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Data",
+              "displayName": "Data",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Coleta",
+              "displayName": "Coleta",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Frete Motorista",
+              "displayName": "Frete Motorista",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Comissão",
+              "displayName": "Comissão",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Diária",
+              "displayName": "Diária",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Lona",
+              "displayName": "Lona",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Descraga",
+              "displayName": "Descraga",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "nome_motorista",
+              "displayName": "nome_motorista",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "data",
+              "displayName": "data",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "coleta",
+              "displayName": "coleta",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "frete_motorista",
+              "displayName": "frete_motorista",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "diaria",
+              "displayName": "diaria",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "lona",
+              "displayName": "lona",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "descarga",
+              "displayName": "descarga",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        2056,
+        -80
+      ],
+      "id": "7198f35d-82fa-4f10-8e33-442d477c5540",
+      "name": "Google Sheets5",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "z1TVyysIXlRlzX0a",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1KibhL1vMRG6cGUOA37-v0gg1reXq8rLEWd_7UjduRuo",
+          "mode": "list",
+          "cachedResultName": "Ronaldo - Fechamento Motorista Mês 05",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1KibhL1vMRG6cGUOA37-v0gg1reXq8rLEWd_7UjduRuo/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1186730605,
+          "mode": "list",
+          "cachedResultName": "Semana 2",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1KibhL1vMRG6cGUOA37-v0gg1reXq8rLEWd_7UjduRuo/edit#gid=1186730605"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Data": "={{ $('Get Json').item.json.data }}",
+            "Coleta": "={{ $('Get Json').item.json.coleta }}",
+            "Frete Motorista": "={{ $('Get Json').item.json.frete_motorista }}",
+            "Comissão": "={{ $('Get Json').item.json.frete_motorista * 0.15 }}",
+            "Diária": "={{ $('Get Json').item.json.diaria }}",
+            "Lona": "={{ $('Get Json').item.json.lona }}",
+            "Descraga": "={{ $('Get Json').item.json.descarga }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Data",
+              "displayName": "Data",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Coleta",
+              "displayName": "Coleta",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Frete Motorista",
+              "displayName": "Frete Motorista",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Comissão",
+              "displayName": "Comissão",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Diária",
+              "displayName": "Diária",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Lona",
+              "displayName": "Lona",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Descraga",
+              "displayName": "Descraga",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "nome_motorista",
+              "displayName": "nome_motorista",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "data",
+              "displayName": "data",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "coleta",
+              "displayName": "coleta",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "frete_motorista",
+              "displayName": "frete_motorista",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "diaria",
+              "displayName": "diaria",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "lona",
+              "displayName": "lona",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "descarga",
+              "displayName": "descarga",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        2056,
+        120
+      ],
+      "id": "87298297-372c-496a-bb7c-3fe64f96515c",
+      "name": "Google Sheets6",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "z1TVyysIXlRlzX0a",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1KibhL1vMRG6cGUOA37-v0gg1reXq8rLEWd_7UjduRuo",
+          "mode": "list",
+          "cachedResultName": "Ronaldo - Fechamento Motorista Mês 05",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1KibhL1vMRG6cGUOA37-v0gg1reXq8rLEWd_7UjduRuo/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 366866710,
+          "mode": "list",
+          "cachedResultName": "Semana 3",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1KibhL1vMRG6cGUOA37-v0gg1reXq8rLEWd_7UjduRuo/edit#gid=366866710"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Data": "={{ $('Get Json').item.json.data }}",
+            "Coleta": "={{ $('Get Json').item.json.coleta }}",
+            "Frete Motorista": "={{ $('Get Json').item.json.frete_motorista }}",
+            "Comissão": "={{ $('Get Json').item.json.frete_motorista * 0.15 }}",
+            "Diária": "={{ $('Get Json').item.json.diaria }}",
+            "Lona": "={{ $('Get Json').item.json.lona }}",
+            "Descraga": "={{ $('Get Json').item.json.descarga }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Data",
+              "displayName": "Data",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Coleta",
+              "displayName": "Coleta",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Frete Motorista",
+              "displayName": "Frete Motorista",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Comissão",
+              "displayName": "Comissão",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Diária",
+              "displayName": "Diária",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Lona",
+              "displayName": "Lona",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Descraga",
+              "displayName": "Descraga",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "nome_motorista",
+              "displayName": "nome_motorista",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "data",
+              "displayName": "data",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "coleta",
+              "displayName": "coleta",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "frete_motorista",
+              "displayName": "frete_motorista",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "diaria",
+              "displayName": "diaria",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "lona",
+              "displayName": "lona",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "descarga",
+              "displayName": "descarga",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        2056,
+        320
+      ],
+      "id": "70c57918-eacf-48e3-af1f-9fa1c8dcbd46",
+      "name": "Google Sheets7",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "z1TVyysIXlRlzX0a",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1KibhL1vMRG6cGUOA37-v0gg1reXq8rLEWd_7UjduRuo",
+          "mode": "list",
+          "cachedResultName": "Ronaldo - Fechamento Motorista Mês 05",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1KibhL1vMRG6cGUOA37-v0gg1reXq8rLEWd_7UjduRuo/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 183503083,
+          "mode": "list",
+          "cachedResultName": "Semana 4",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1KibhL1vMRG6cGUOA37-v0gg1reXq8rLEWd_7UjduRuo/edit#gid=183503083"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Data": "={{ $('Get Json').item.json.data }}",
+            "Coleta": "={{ $('Get Json').item.json.coleta }}",
+            "Frete Motorista": "={{ $('Get Json').item.json.frete_motorista }}",
+            "Comissão": "={{ $('Get Json').item.json.frete_motorista * 0.15 }}",
+            "Diária": "={{ $('Get Json').item.json.diaria }}",
+            "Lona": "={{ $('Get Json').item.json.lona }}",
+            "Descraga": "={{ $('Get Json').item.json.descarga }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Data",
+              "displayName": "Data",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Coleta",
+              "displayName": "Coleta",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Frete Motorista",
+              "displayName": "Frete Motorista",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Comissão",
+              "displayName": "Comissão",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Diária",
+              "displayName": "Diária",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Lona",
+              "displayName": "Lona",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Descraga",
+              "displayName": "Descraga",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "nome_motorista",
+              "displayName": "nome_motorista",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "data",
+              "displayName": "data",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "coleta",
+              "displayName": "coleta",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "frete_motorista",
+              "displayName": "frete_motorista",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "diaria",
+              "displayName": "diaria",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "lona",
+              "displayName": "lona",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "descarga",
+              "displayName": "descarga",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        2056,
+        520
+      ],
+      "id": "01fb1d0d-78f9-4239-9633-309ece60a7ca",
+      "name": "Google Sheets8",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "z1TVyysIXlRlzX0a",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1KibhL1vMRG6cGUOA37-v0gg1reXq8rLEWd_7UjduRuo",
+          "mode": "list",
+          "cachedResultName": "Ronaldo - Fechamento Motorista Mês 05",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1KibhL1vMRG6cGUOA37-v0gg1reXq8rLEWd_7UjduRuo/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 545407,
+          "mode": "list",
+          "cachedResultName": "Semana 5",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1KibhL1vMRG6cGUOA37-v0gg1reXq8rLEWd_7UjduRuo/edit#gid=545407"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Data": "={{ $('Get Json').item.json.data }}",
+            "Coleta": "={{ $('Get Json').item.json.coleta }}",
+            "Frete Motorista": "={{ $('Get Json').item.json.frete_motorista }}",
+            "Comissão": "={{ $('Get Json').item.json.frete_motorista * 0.15 }}",
+            "Diária": "={{ $('Get Json').item.json.diaria }}",
+            "Lona": "={{ $('Get Json').item.json.lona }}",
+            "Descraga": "={{ $('Get Json').item.json.descarga }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Data",
+              "displayName": "Data",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Coleta",
+              "displayName": "Coleta",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Frete Motorista",
+              "displayName": "Frete Motorista",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Comissão",
+              "displayName": "Comissão",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Diária",
+              "displayName": "Diária",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Lona",
+              "displayName": "Lona",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Descraga",
+              "displayName": "Descraga",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "nome_motorista",
+              "displayName": "nome_motorista",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "data",
+              "displayName": "data",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "coleta",
+              "displayName": "coleta",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "frete_motorista",
+              "displayName": "frete_motorista",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "diaria",
+              "displayName": "diaria",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "lona",
+              "displayName": "lona",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "descarga",
+              "displayName": "descarga",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        2056,
+        720
+      ],
+      "id": "9ac1656b-28f9-46ed-a2ae-213f078e1628",
+      "name": "Google Sheets9",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "z1TVyysIXlRlzX0a",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "10EUwIPjmnXfynjPfOANYfTbD0bq5Ge1BB0NOOSY8IKU",
+          "mode": "list",
+          "cachedResultName": "Rubens - Fechamento Motorista Mês 05",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/10EUwIPjmnXfynjPfOANYfTbD0bq5Ge1BB0NOOSY8IKU/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 22722953,
+          "mode": "list",
+          "cachedResultName": "Semana 1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/10EUwIPjmnXfynjPfOANYfTbD0bq5Ge1BB0NOOSY8IKU/edit#gid=22722953"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Data": "={{ $('Get Json').item.json.data }}",
+            "Coleta": "={{ $('Get Json').item.json.coleta }}",
+            "Frete Motorista": "={{ $('Get Json').item.json.frete_motorista }}",
+            "Comissão": "={{ $('Get Json').item.json.frete_motorista * 0.15 }}",
+            "Diária": "={{ $('Get Json').item.json.diaria }}",
+            "Lona": "={{ $('Get Json').item.json.lona }}",
+            "Descraga": "={{ $('Get Json').item.json.descarga }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Data",
+              "displayName": "Data",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Coleta",
+              "displayName": "Coleta",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Frete Motorista",
+              "displayName": "Frete Motorista",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Comissão",
+              "displayName": "Comissão",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Diária",
+              "displayName": "Diária",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Lona",
+              "displayName": "Lona",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Descraga",
+              "displayName": "Descraga",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "nome_motorista",
+              "displayName": "nome_motorista",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "data",
+              "displayName": "data",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "coleta",
+              "displayName": "coleta",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "frete_motorista",
+              "displayName": "frete_motorista",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "diaria",
+              "displayName": "diaria",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "lona",
+              "displayName": "lona",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "descarga",
+              "displayName": "descarga",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        2560,
+        -580
+      ],
+      "id": "8ab3f4ef-2707-4f0d-a8a6-7372a92417e1",
+      "name": "Google Sheets10",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "z1TVyysIXlRlzX0a",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "10EUwIPjmnXfynjPfOANYfTbD0bq5Ge1BB0NOOSY8IKU",
+          "mode": "list",
+          "cachedResultName": "Rubens - Fechamento Motorista Mês 05",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/10EUwIPjmnXfynjPfOANYfTbD0bq5Ge1BB0NOOSY8IKU/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1186730605,
+          "mode": "list",
+          "cachedResultName": "Semana 2",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/10EUwIPjmnXfynjPfOANYfTbD0bq5Ge1BB0NOOSY8IKU/edit#gid=1186730605"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Data": "={{ $('Get Json').item.json.data }}",
+            "Coleta": "={{ $('Get Json').item.json.coleta }}",
+            "Frete Motorista": "={{ $('Get Json').item.json.frete_motorista }}",
+            "Comissão": "={{ $('Get Json').item.json.frete_motorista * 0.15 }}",
+            "Diária": "={{ $('Get Json').item.json.diaria }}",
+            "Lona": "={{ $('Get Json').item.json.lona }}",
+            "Descraga": "={{ $('Get Json').item.json.descarga }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Data",
+              "displayName": "Data",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Coleta",
+              "displayName": "Coleta",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Frete Motorista",
+              "displayName": "Frete Motorista",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Comissão",
+              "displayName": "Comissão",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Diária",
+              "displayName": "Diária",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Lona",
+              "displayName": "Lona",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Descraga",
+              "displayName": "Descraga",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "nome_motorista",
+              "displayName": "nome_motorista",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "data",
+              "displayName": "data",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "coleta",
+              "displayName": "coleta",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "frete_motorista",
+              "displayName": "frete_motorista",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "diaria",
+              "displayName": "diaria",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "lona",
+              "displayName": "lona",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "descarga",
+              "displayName": "descarga",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        2560,
+        -380
+      ],
+      "id": "67ea721f-8485-4ab6-83ac-0072ea92c5c6",
+      "name": "Google Sheets11",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "z1TVyysIXlRlzX0a",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "10EUwIPjmnXfynjPfOANYfTbD0bq5Ge1BB0NOOSY8IKU",
+          "mode": "list",
+          "cachedResultName": "Rubens - Fechamento Motorista Mês 05",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/10EUwIPjmnXfynjPfOANYfTbD0bq5Ge1BB0NOOSY8IKU/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 366866710,
+          "mode": "list",
+          "cachedResultName": "Semana 3",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/10EUwIPjmnXfynjPfOANYfTbD0bq5Ge1BB0NOOSY8IKU/edit#gid=366866710"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Data": "={{ $('Get Json').item.json.data }}",
+            "Coleta": "={{ $('Get Json').item.json.coleta }}",
+            "Frete Motorista": "={{ $('Get Json').item.json.frete_motorista }}",
+            "Comissão": "={{ $('Get Json').item.json.frete_motorista * 0.15 }}",
+            "Diária": "={{ $('Get Json').item.json.diaria }}",
+            "Lona": "={{ $('Get Json').item.json.lona }}",
+            "Descraga": "={{ $('Get Json').item.json.descarga }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Data",
+              "displayName": "Data",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Coleta",
+              "displayName": "Coleta",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Frete Motorista",
+              "displayName": "Frete Motorista",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Comissão",
+              "displayName": "Comissão",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Diária",
+              "displayName": "Diária",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Lona",
+              "displayName": "Lona",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Descraga",
+              "displayName": "Descraga",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "nome_motorista",
+              "displayName": "nome_motorista",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "data",
+              "displayName": "data",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "coleta",
+              "displayName": "coleta",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "frete_motorista",
+              "displayName": "frete_motorista",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "diaria",
+              "displayName": "diaria",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "lona",
+              "displayName": "lona",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "descarga",
+              "displayName": "descarga",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        2560,
+        -180
+      ],
+      "id": "5cf3598e-558a-4cf9-8732-bf3c7323ce3a",
+      "name": "Google Sheets12",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "z1TVyysIXlRlzX0a",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "10EUwIPjmnXfynjPfOANYfTbD0bq5Ge1BB0NOOSY8IKU",
+          "mode": "list",
+          "cachedResultName": "Rubens - Fechamento Motorista Mês 05",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/10EUwIPjmnXfynjPfOANYfTbD0bq5Ge1BB0NOOSY8IKU/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 183503083,
+          "mode": "list",
+          "cachedResultName": "Semana 4",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/10EUwIPjmnXfynjPfOANYfTbD0bq5Ge1BB0NOOSY8IKU/edit#gid=183503083"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Data": "={{ $('Get Json').item.json.data }}",
+            "Coleta": "={{ $('Get Json').item.json.coleta }}",
+            "Frete Motorista": "={{ $('Get Json').item.json.frete_motorista }}",
+            "Comissão": "={{ $('Get Json').item.json.frete_motorista * 0.15 }}",
+            "Diária": "={{ $('Get Json').item.json.diaria }}",
+            "Lona": "={{ $('Get Json').item.json.lona }}",
+            "Descraga": "={{ $('Get Json').item.json.descarga }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Data",
+              "displayName": "Data",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Coleta",
+              "displayName": "Coleta",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Frete Motorista",
+              "displayName": "Frete Motorista",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Comissão",
+              "displayName": "Comissão",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Diária",
+              "displayName": "Diária",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Lona",
+              "displayName": "Lona",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Descraga",
+              "displayName": "Descraga",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "nome_motorista",
+              "displayName": "nome_motorista",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "data",
+              "displayName": "data",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "coleta",
+              "displayName": "coleta",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "frete_motorista",
+              "displayName": "frete_motorista",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "diaria",
+              "displayName": "diaria",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "lona",
+              "displayName": "lona",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "descarga",
+              "displayName": "descarga",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        2560,
+        20
+      ],
+      "id": "f66c1dd2-fd4e-47c0-b66c-deff9cd5a4e4",
+      "name": "Google Sheets13",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "z1TVyysIXlRlzX0a",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "10EUwIPjmnXfynjPfOANYfTbD0bq5Ge1BB0NOOSY8IKU",
+          "mode": "list",
+          "cachedResultName": "Rubens - Fechamento Motorista Mês 05",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/10EUwIPjmnXfynjPfOANYfTbD0bq5Ge1BB0NOOSY8IKU/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 545407,
+          "mode": "list",
+          "cachedResultName": "Semana 5",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/10EUwIPjmnXfynjPfOANYfTbD0bq5Ge1BB0NOOSY8IKU/edit#gid=545407"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Data": "={{ $('Get Json').item.json.data }}",
+            "Coleta": "={{ $('Get Json').item.json.coleta }}",
+            "Frete Motorista": "={{ $('Get Json').item.json.frete_motorista }}",
+            "Comissão": "={{ $('Get Json').item.json.frete_motorista * 0.15 }}",
+            "Diária": "={{ $('Get Json').item.json.diaria }}",
+            "Lona": "={{ $('Get Json').item.json.lona }}",
+            "Descraga": "={{ $('Get Json').item.json.descarga }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Data",
+              "displayName": "Data",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Coleta",
+              "displayName": "Coleta",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Frete Motorista",
+              "displayName": "Frete Motorista",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Comissão",
+              "displayName": "Comissão",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Diária",
+              "displayName": "Diária",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Lona",
+              "displayName": "Lona",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Descraga",
+              "displayName": "Descraga",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "nome_motorista",
+              "displayName": "nome_motorista",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "data",
+              "displayName": "data",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "coleta",
+              "displayName": "coleta",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "frete_motorista",
+              "displayName": "frete_motorista",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "diaria",
+              "displayName": "diaria",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "lona",
+              "displayName": "lona",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "descarga",
+              "displayName": "descarga",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        2560,
+        220
+      ],
+      "id": "9d6bcb0c-553b-4cef-93f0-33f2641353f5",
+      "name": "Google Sheets14",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "z1TVyysIXlRlzX0a",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "4b25e204-d795-49b5-8aaa-fbfdba63c476",
+              "leftValue": "={{ $json.info.message }}",
+              "rightValue": "Bruno",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            },
+            {
+              "id": "8baebc68-f8db-4ccc-9792-af3bf620dfa4",
+              "leftValue": "={{ $json.info.message }}",
+              "rightValue": "bruno",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            },
+            {
+              "id": "2982e0ed-34c6-408c-9196-158de2c3c618",
+              "leftValue": "={{ $json.info.message }}",
+              "rightValue": "Rubens",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            },
+            {
+              "id": "4b2a6aee-5fcf-405a-b5ad-a2cd3aed129d",
+              "leftValue": "={{ $json.info.message }}",
+              "rightValue": "rubens",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            },
+            {
+              "id": "e162e939-b667-4503-bf56-b79b4b41def6",
+              "leftValue": "={{ $json.info.message }}",
+              "rightValue": "Ronaldo",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            },
+            {
+              "id": "3c3a7198-ac9b-4cf3-b9a0-dbc0f75b00ab",
+              "leftValue": "={{ $json.info.message }}",
+              "rightValue": "ronaldo",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        580,
+        -180
+      ],
+      "id": "78b3505b-6036-4cac-a013-97e0501d4c3a",
+      "name": "If Fleet Driver"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Google Gemini Chat Model3": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Website Ready",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Website Ready": {
+      "main": [
+        [
+          {
+            "node": "Get Json",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If From Group": {
+      "main": [
+        [
+          {
+            "node": "If Fleet Driver",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Switch1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Switch2",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Switch3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Info": {
+      "main": [
+        [
+          {
+            "node": "If From Group",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Json": {
+      "main": [
+        [
+          {
+            "node": "Get Week",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Week": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Get Info",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch1": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Google Sheets1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Google Sheets2",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Google Sheets3",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Google Sheets4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch3": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets5",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Google Sheets6",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Google Sheets7",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Google Sheets8",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Google Sheets9",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch2": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets10",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Google Sheets11",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Google Sheets12",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Google Sheets13",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Google Sheets14",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If Fleet Driver": {
+      "main": [
+        [
+          {
+            "node": "Website Ready",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "2907abd4-ced8-4387-8998-7a5d5a3492fa",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "a750912c08c0fb588d20508d858099b211d24a473541eb3e6d646b975ac199ff"
+  },
+  "id": "tkmSpP8Zw4QcHwwn",
+  "tags": []
+}
