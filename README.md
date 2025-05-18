@@ -22,4 +22,5 @@ With this automation:
   - Uses multiple Switch nodes to send data to the correct Google Sheet week
 - **Output**: Each driver's weekly commissions are updated in the corresponding spreadsheet.
 
+## 📸 Workflow Preview
 ![image](https://github.com/user-attachments/assets/b6cb250b-eb54-4109-b895-590f3b80fad3)
